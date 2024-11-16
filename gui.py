@@ -746,6 +746,56 @@ button_20.place(
     width=79.0,
     height=36.0
 )
+
+canvas.create_text(
+    758.0,
+    76.0,
+    anchor="nw",
+    text="Pending Orders",
+    fill="#000000",
+    font=("Poppins SemiBold", 16 * -1)
+)
+canvas.create_text(
+    783.0,
+    129.0,
+    anchor="nw",
+    text="Order # 5",
+    fill="#000000",
+    font=("Kodchasan Regular", 14 * -1)
+)
+
+button_image_23 = PhotoImage(
+    file=relative_to_assets("button_23.png"))
+button_23 = Button(
+    image=button_image_23,
+    borderwidth=0,
+    highlightthickness=0,
+    command=lambda: print("button_23 clicked"),
+    relief="flat"
+)
+button_23.place(
+    x=723.0,
+    y=126.0,
+    width=49.0,
+    height=27.0
+)
+
+button_image_21 = PhotoImage(
+    file=relative_to_assets("button_21.png"))
+button_21 = Button(
+    image=button_image_21,
+    borderwidth=0,
+    highlightthickness=0,
+    command=lambda: print("button_21 clicked"),
+    relief="flat"
+)
+button_21.place(
+    x=876.0,
+    y=128.0,
+    width=24.0,
+    height=24.0
+)
+
 # Call initialize_stock_quantity_display after setting up the canvas
 load_stock_from_excel("finalized_orders.xlsx", sheet_name="StockData")
 initialize_stock_quantity_display()
