@@ -57,6 +57,40 @@ items = {
     "LIT": {"price": 20.0, "stock": 0, "original_stock": 0, "quantity": 0},
 }
 
+item_display_names = {
+    "CFOC": "Chaofan w/ Orange C",
+    "SR": "Siomai Rice",
+    "WTN": "Wonton Noodles",
+    "WTCO": "Wonton w/ Chili Oil",
+    "S": "Siomai",
+    "TH": "Tanghulu",
+    "MT": "Milk Tea",
+    "LIT": "Lemon Iced Tea",
+}
+
+customer_name_entry = Entry(
+    window,
+    bd=0,
+    bg="#FFFFFF",
+    highlightthickness=0,
+    font=("Poppins Regular", 12)
+)
+customer_name_entry.place(
+    x=100,  # Adjust x and y as per your UI design
+    y=650,
+    width=200,
+    height=30
+)
+canvas.create_text(
+    100,
+    630,
+    anchor="nw",
+    text="Customer Name:",
+    fill="#000000",
+    font=("Poppins Regular", 12)
+)
+
+
 # Functions
             
 def load_stock_from_excel(file_path, sheet_name="StockData"):
@@ -147,6 +181,39 @@ def update_total_price_display():
     )
     print(f"Total Price updated: ${total_price:.2f}")
 
+receipt_text_ids = {}  # Dictionary to store receipt text object IDs
+
+def addItemInReceipt():
+    ylevel = 120.0
+    canvas.delete("receipt_text")  # Clear previous receipt entries
+
+    for item_name, item_data in items.items():
+        if item_data['quantity'] > 0:
+            readable_name = item_display_names[item_name]  # Get readable name
+            receipt_text = f"{item_data['quantity']}x {readable_name} : ₱{item_data['quantity'] * item_data['price']}\n"
+            canvas.create_text(
+                720.0,
+                ylevel,
+                anchor="nw",
+                text=receipt_text,
+                fill="#000000",
+                font=("Poppins SemiBold", 14 * -1),
+                tags="receipt_text"  # Use tags to group receipt entries
+            )
+            ylevel += 30.0
+
+    # Add total price to the receipt
+    total_price = sum(item['quantity'] * item['price'] for item in items.values())
+    canvas.create_text(
+        720.0,
+        ylevel,
+        anchor="nw",
+        text=f"Total Price: ₱{total_price:.2f}\n",
+        fill="#000000",
+        font=("Poppins SemiBold", 16 * -1),
+        tags="receipt_text"
+    )
+
 # Modify addEvent to update display dynamically
 def addEvent(item_name):
     if item_name in items:
@@ -162,6 +229,7 @@ def addEvent(item_name):
             # Update the display
             update_stock_quantity_display(item_name)
             update_total_price_display()
+            addItemInReceipt()  
         else:
             print(f"{item_name} is out of stock.")
     else:
@@ -181,6 +249,7 @@ def removeEvent(item_name):
             # Update the display
             update_stock_quantity_display(item_name)
             update_total_price_display()
+            addItemInReceipt()  
         else:
             print(f"You cannot remove {item_name}'s quantity below 0.")
     else:
@@ -188,6 +257,11 @@ def removeEvent(item_name):
 
 def addOrder():
     global order_number, orders
+
+    customer_name = customer_name_entry.get().strip()  # Get customer name
+    if not customer_name:
+        print("Customer name is required.")
+        return
 
     if sum(item['quantity'] for item in items.values()) == 0:
         print("No items in cart. Cannot add order.")
@@ -205,7 +279,8 @@ def addOrder():
                 "Item": item_name,
                 "Quantity": item_data['quantity'],
                 "Price": item_total,
-                "Total Cost": ""
+                "Total Cost": "",
+                "Customer Name": ""  # Add customer name
             })
 
             # Deduct stock
@@ -214,6 +289,7 @@ def addOrder():
     # Set "Total Cost" only in the last item of the order
     if rows_to_add:
         rows_to_add[-1]["Total Cost"] = total_order_price
+        rows_to_add[-1]["Customer Name"] = customer_name
 
     # Append rows to the DataFrame
     orders = pd.concat([orders, pd.DataFrame(rows_to_add)], ignore_index=True)
@@ -236,6 +312,7 @@ def addOrder():
         print("Stock updated in Excel.")
     except Exception as e:
         print(f"Error updating stock in Excel: {e}")
+
     # Increment the order number for the next order
     order_number += 1
     for item_name in items:
@@ -244,6 +321,9 @@ def addOrder():
 
     update_total_price_display()
     update_order_display()
+    canvas.delete("receipt_text")
+    customer_name_entry.delete(0, 'end')  # Clear the name entry field
+
 
 def clear_total_price_display():
     canvas.itemconfig(
@@ -751,49 +831,9 @@ canvas.create_text(
     758.0,
     76.0,
     anchor="nw",
-    text="Pending Orders",
+    text="Order Receipt",
     fill="#000000",
     font=("Poppins SemiBold", 16 * -1)
-)
-canvas.create_text(
-    783.0,
-    129.0,
-    anchor="nw",
-    text="Order # 5",
-    fill="#000000",
-    font=("Kodchasan Regular", 14 * -1)
-)
-
-button_image_23 = PhotoImage(
-    file=relative_to_assets("button_23.png"))
-button_23 = Button(
-    image=button_image_23,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: print("button_23 clicked"),
-    relief="flat"
-)
-button_23.place(
-    x=723.0,
-    y=126.0,
-    width=49.0,
-    height=27.0
-)
-
-button_image_21 = PhotoImage(
-    file=relative_to_assets("button_21.png"))
-button_21 = Button(
-    image=button_image_21,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: print("button_21 clicked"),
-    relief="flat"
-)
-button_21.place(
-    x=876.0,
-    y=128.0,
-    width=24.0,
-    height=24.0
 )
 
 # Call initialize_stock_quantity_display after setting up the canvas
