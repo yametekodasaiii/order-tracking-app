@@ -1,15 +1,10 @@
 import pandas as pd
 from pandas import ExcelWriter
 from pathlib import Path
-
-# from tkinter import *
-# Explicit imports to satisfy Flake8
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
-
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"assets\frame0")
-
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
@@ -47,14 +42,14 @@ canvas = Canvas(
 )
 
 items = {
-    "CFOC": {"price": 130.0, "stock": 0, "original_stock": 0, "quantity": 0},
-    "SR": {"price": 95.0, "stock": 0, "original_stock": 0, "quantity": 0},
-    "WTN": {"price": 90.0, "stock": 0, "original_stock": 0, "quantity": 0},
-    "WTCO": {"price": 55.0, "stock": 0, "original_stock": 0, "quantity": 0},
-    "S": {"price": 25.0, "stock": 0, "original_stock": 0, "quantity": 0},
-    "TH": {"price": 70.0, "stock": 0, "original_stock": 0, "quantity": 0},
-    "MT": {"price": 50.0, "stock": 0, "original_stock": 0, "quantity": 0},
-    "LIT": {"price": 20.0, "stock": 0, "original_stock": 0, "quantity": 0},
+    "CFOC": {"price": 145, "stock": 0, "original_stock": 0, "quantity": 0},
+    "SR": {"price": 60, "stock": 0, "original_stock": 0, "quantity": 0},
+    "WTN": {"price": 70, "stock": 0, "original_stock": 0, "quantity": 0},
+    "WTCO": {"price": 40, "stock": 0, "original_stock": 0, "quantity": 0},
+    "S": {"price": 25, "stock": 0, "original_stock": 0, "quantity": 0},
+    "TH": {"price": 30, "stock": 0, "original_stock": 0, "quantity": 0},
+    "MT": {"price": 60, "stock": 0, "original_stock": 0, "quantity": 0},
+    "LIT": {"price": 30, "stock": 0, "original_stock": 0, "quantity": 0},
 }
 
 item_display_names = {
@@ -62,7 +57,7 @@ item_display_names = {
     "SR": "Siomai Rice",
     "WTN": "Wonton Noodles",
     "WTCO": "Wonton w/ Chili Oil",
-    "S": "Siomai",
+    "S": "Shut yo BITCH ass up",
     "TH": "Tanghulu",
     "MT": "Milk Tea",
     "LIT": "Lemon Iced Tea",
@@ -108,6 +103,7 @@ def load_stock_from_excel(file_path, sheet_name="StockData"):
                 if item_name in items:
                     items[item_name]["stock"] = stock_value
                     items[item_name]["original_stock"] = stock_value
+                    update_stock_quantity_display(item_name)
                     print(f"Updated {item_name} stock to {stock_value}.")
                 else:
                     print(f"Item '{item_name}' in Excel not found in application.")
@@ -507,7 +503,7 @@ canvas.create_text(
     324.0,
     287.0,
     anchor="nw",
-    text="Siomai",
+    text="IGNOR",
     fill="#000000",
     font=("Kodchasan Regular", 14 * -1)
 )
@@ -599,22 +595,6 @@ button_4 = Button(
 button_4.place(
     x=383.0,
     y=186.0,
-    width=24.0,
-    height=24.0
-)
-
-button_image_5 = PhotoImage(
-    file=relative_to_assets("button_5.png"))
-button_5 = Button(
-    image=button_image_5,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: addEvent("S"),
-    relief="flat"
-)
-button_5.place(
-    x=383.0,
-    y=315.0,
     width=24.0,
     height=24.0
 )
@@ -731,22 +711,6 @@ button_13.place(
     height=24.0
 )
 
-button_image_14 = PhotoImage(
-    file=relative_to_assets("button_14.png"))
-button_14 = Button(
-    image=button_image_14,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: removeEvent("S"),
-    relief="flat"
-)
-button_14.place(
-    x=283.0,
-    y=315.0,
-    width=24.0,
-    height=24.0
-)
-
 button_image_15 = PhotoImage(
     file=relative_to_assets("button_15.png"))
 button_15 = Button(
@@ -837,7 +801,11 @@ canvas.create_text(
 )
 
 # Call initialize_stock_quantity_display after setting up the canvas
-load_stock_from_excel("finalized_orders.xlsx", sheet_name="StockData")
+def period_update_stock():
+    load_stock_from_excel("finalized_orders.xlsx", sheet_name="StockData")
+    canvas.after(500, period_update_stock)
+
+period_update_stock()
 initialize_stock_quantity_display()
 update_total_price_display()
 update_order_display()
